@@ -1,0 +1,61 @@
+{
+  "manifest_version": 3,
+  "name": "企业助手",
+  "version": "1.0.0",
+  "description": "在 365.kdocs.cn 页面中管理企业成员（查看、删除、新增、删除并重建）。",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_title": "企业助手",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
+    }
+  },
+  "permissions": [
+    "cookies"
+  ],
+  "host_permissions": [
+    "https://365.kdocs.cn/*",
+    "https://*.365.kdocs.cn/*",
+    "https://*.kdocs.cn/*",
+    "https://*.wps.cn/*"
+  ],
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://365.kdocs.cn/*",
+        "https://*.365.kdocs.cn/*",
+        "https://*.kdocs.cn/*",
+        "https://*.wps.cn/*"
+      ],
+      "js": [
+        "src/shared/constants.js",
+        "src/shared/format.js",
+        "src/shared/dom.js",
+        "src/api/client.js",
+        "src/api/company.js",
+        "src/api/members.js",
+        "src/ui/icons.js",
+        "src/ui/panel.js",
+        "src/ui/render.js",
+        "src/actions/companyActions.js",
+        "src/actions/memberActions.js",
+        "src/content.js"
+      ],
+      "css": [
+        "src/content.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
