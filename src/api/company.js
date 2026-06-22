@@ -14,14 +14,16 @@
     function buildAccessScopeUrls(companyId, params) {
       const query = params.toString();
       const currentOrigin = getApiOrigin();
+      const plussvrUrl = `${PLUSSVR_API_ORIGIN}/plusadmin/v2/companies/${companyId}/users/self/access_scope?${query}`;
 
       if (isAccountWpsCn(currentOrigin)) {
-        // account.wps.cn 没有 /3rd/plussvr 代理路径，直接走当前域
-        return [`${currentOrigin}/plusadmin/v2/companies/${companyId}/users/self/access_scope?${query}`];
+        // account.wps.cn 下与 kdocs 一致，直接走 plussvr.wps.cn 直连，
+        // CID 由 background.js 从 account.wps.cn 域的 cid cookie 读取后传入。
+        return [plussvrUrl];
       }
 
       return [
-        `${PLUSSVR_API_ORIGIN}/plusadmin/v2/companies/${companyId}/users/self/access_scope?${query}`,
+        plussvrUrl,
         `${currentOrigin}/3rd/plussvr/plusadmin/v2/companies/${companyId}/users/self/access_scope?${query}`
       ].filter((url, index, urls) => urls.indexOf(url) === index);
     }

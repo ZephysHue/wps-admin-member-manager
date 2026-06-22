@@ -98,7 +98,26 @@ function pickCompanyIdFromCookies(cookies) {
   return null;
 }
 
-async function readCompanyIdFromCookies() {
+async function readCompanyIdFromCookies(origin) {
+  // account.wps.cn 域下优先精确读取该域的 cid cookie，避免读到其它域的企业 ID
+  if (origin) {
+    try {
+      const host = new URL(origin).hostname.toLowerCase();
+      if (host === "account.wps.cn") {
+        const raw = await getCookieValue({ url: origin, name: "cid" });
+        const cid = String(raw || "").trim();
+        if (/^\d{6,}$/.test(cid)) {
+          return cid;
+        }
+        const ids = extractCompanyIds(cid);
+        if (ids.length > 0) {
+          return ids[0];
+        }
+      }
+    } catch (_error) {
+      // 解析失败时回退到通用读取逻辑
+    }
+  }
   const cookies = await getAllCookies();
   return pickCompanyIdFromCookies(cookies);
 }
@@ -135,7 +154,7 @@ async function readDeptIdFromCookies() {
 async function readRuntimeContext(origin) {
   const [csrfToken, companyId, deptId] = await Promise.all([
     readCsrfFromCookies(origin),
-    readCompanyIdFromCookies(),
+    readCompanyIdFromCookies(origin),
     readDeptIdFromCookies()
   ]);
   return { csrfToken, companyId, deptId };
