@@ -2,9 +2,24 @@
   const { PLUSSVR_API_ORIGIN } = globalThis.KdocsHelperConstants;
 
   function createCompanyApi({ getApiOrigin, requestJson, accessScopePermission }) {
+    function isAccountWpsCn(origin) {
+      try {
+        const host = new URL(origin).hostname.toLowerCase();
+        return host === "account.wps.cn";
+      } catch (_) {
+        return false;
+      }
+    }
+
     function buildAccessScopeUrls(companyId, params) {
       const query = params.toString();
       const currentOrigin = getApiOrigin();
+
+      if (isAccountWpsCn(currentOrigin)) {
+        // account.wps.cn 没有 /3rd/plussvr 代理路径，直接走当前域
+        return [`${currentOrigin}/plusadmin/v2/companies/${companyId}/users/self/access_scope?${query}`];
+      }
+
       return [
         `${PLUSSVR_API_ORIGIN}/plusadmin/v2/companies/${companyId}/users/self/access_scope?${query}`,
         `${currentOrigin}/3rd/plussvr/plusadmin/v2/companies/${companyId}/users/self/access_scope?${query}`
